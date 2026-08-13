@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="KYS Finance Desk - a simple local finance workflow for office staff." />
+    <title>KYS Finance Desk</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23174b3c'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-family='serif' font-size='38' font-weight='700' fill='%23a6db83'%3EK%3C/text%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">K</div>
+          <div>
+            <strong>KYS Finance</strong>
+            <span>Finance Desk</span>
+          </div>
+        </div>
+
+        <div class="user-card">
+          <div class="avatar">NP</div>
+          <div>
+            <strong id="user-name">Nimali Perera</strong>
+            <span id="user-role">Data Entry Clerk</span>
+          </div>
+        </div>
+
+        <nav aria-label="Main navigation">
+          <button class="nav-item active" data-page="dashboard"><span>⌂</span> Dashboard</button>
+          <button class="nav-item" data-page="new-entry"><span>＋</span> New entry</button>
+          <button class="nav-item" data-page="entries"><span>▤</span> My entries</button>
+          <button class="nav-item cashbook-nav" data-page="cashbook"><span>¤</span> Cash book</button>
+          <button class="nav-item admin-only" data-page="approvals"><span>✓</span> Approvals <b id="pending-badge">0</b></button>
+          <button class="nav-item admin-only" data-page="reports"><span>▥</span> Reports</button>
+          <button class="nav-item admin-only" data-page="accounts"><span>▦</span> Accounts</button>
+          <button class="nav-item admin-only" data-page="customers"><span>☺</span> Customers</button>
+          <button class="nav-item admin-only" data-page="audit"><span>◷</span> Activity log</button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <label class="field-label" for="role-switcher">Preview as</label>
+          <select id="role-switcher" aria-label="Preview application as another role">
+            <option value="clerk">Data Entry Clerk</option>
+            <option value="data_customer">Data &amp; Customer Entry</option>
+            <option value="cashier">Petty Cashier</option>
+            <option value="store">Store Keeper</option>
+            <option value="admin">Admin / Accountant</option>
+            <option value="director">Managing Director</option>
+          </select>
+          <button id="reset-demo" class="text-button">Reset demonstration data</button>
+        </div>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="today-label"></p>
+            <h1 id="page-title">Good morning, Nimali</h1>
+          </div>
+          <div class="topbar-actions">
+            <button id="backup-btn" class="ghost-button admin-only">⇩ Download backup</button>
+            <button class="profile-button" id="profile-button" title="Current user">NP</button>
+          </div>
+        </header>
+
+        <div id="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+        <section id="dashboard" class="page active-page">
+          <div class="notice">
+            <span class="notice-icon">✦</span>
+            <div><strong>Simple entry, correct reports.</strong><br />Choose what happened, enter the amount, and the system applies the accounting rule for you.</div>
+            <button class="notice-action" data-goto="new-entry">Add an entry →</button>
+          </div>
+
+          <div class="stat-grid" id="stat-grid"></div>
+
+          <div class="dashboard-grid">
+            <article class="panel profit-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">AUGUST 2026</p>
+                  <h2>Income vs spending</h2>
+                </div>
+                <button class="link-button" data-goto="reports">View report →</button>
+              </div>
+              <div id="income-chart" class="income-chart" aria-label="Monthly income and expense chart"></div>
+              <div class="chart-key"><span><i class="income-key"></i>Income</span><span><i class="expense-key"></i>Expenses</span></div>
+            </article>
+
+            <article class="panel task-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">YOUR NEXT STEP</p>
+                  <h2>Today's work</h2>
+                </div>
+              </div>
+              <div id="task-list" class="task-list"></div>
+            </article>
+          </div>
+
+          <article class="panel recent-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">LATEST</p>
+                <h2>Recent entries</h2>
+              </div>
+              <button class="link-button" data-goto="entries">See all →</button>
+            </div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Date</th><th>What happened</th><th>Category</th><th>Amount</th><th>Status</th></tr></thead>
+              <tbody id="recent-entries"></tbody>
+            </table></div>
+          </article>
+        </section>
+
+        <section id="new-entry" class="page">
+          <div class="page-intro">
+            <div><p class="eyebrow">STEP 1 OF 1</p><h2>What happened today?</h2><p>Pick the closest option. You do not need to know account codes or debit/credit rules.</p></div>
+          </div>
+          <div class="entry-layout">
+            <form class="panel entry-form" id="entry-form">
+              <div class="form-section">
+                <h3>1. Choose the transaction type</h3>
+                <div id="template-grid" class="template-grid"></div>
+              </div>
+              <div class="form-section form-fields" id="entry-fields">
+                <h3>2. Add the details</h3>
+                <div class="field-row">
+                  <label>Date<input id="entry-date" type="date" required /></label>
+                  <label>Amount (Rs.)<input id="entry-amount" type="number" min="0.01" step="0.01" placeholder="0.00" required /></label>
+                </div>
+                <label id="entry-account-label">Detailed category<select id="entry-account" required></select></label>
+                <label id="payee-label">Received from<input id="entry-payee" type="text" maxlength="120" placeholder="Customer / person / supplier" required /></label>
+                <div id="customer-select-block" class="field-row hidden">
+                  <label>Customer type
+                    <select id="entry-customer-type">
+                      <option value="K">Security customer (K)</option>
+                      <option value="C">Cleaning customer (C)</option>
+                    </select>
+                  </label>
+                  <label>Customer
+                    <select id="entry-customer" required></select>
+                  </label>
+                </div>
+                <label>Short note <span class="optional">optional</span><textarea id="entry-description" rows="3" maxlength="240" placeholder="Invoice number, reason, or any helpful detail"></textarea></label>
+                <label id="payment-label">Money received to<select id="entry-payment"></select></label>
+                <div class="accounting-preview" id="accounting-preview"></div>
+                <button type="submit" class="primary-button">Save for approval <span>→</span></button>
+              </div>
+            </form>
+            <aside class="entry-help">
+              <div class="help-icon">?</div>
+              <h3>Need help?</h3>
+              <p>Use the type that best matches the receipt. Your supervisor can review every entry before it affects the final reports.</p>
+              <hr />
+              <p class="muted"><strong>Good to know:</strong> You can correct a saved item by asking an Admin. Nothing is silently deleted.</p>
+            </aside>
+          </div>
+        </section>
+
+        <section id="entries" class="page">
+          <div class="page-intro split-intro">
+            <div><p class="eyebrow">ENTRY HISTORY</p><h2>My entries</h2><p>Items are included in reports only after approval.</p></div>
+            <button class="primary-button small" data-goto="new-entry">＋ New entry</button>
+          </div>
+          <article class="panel table-panel">
+            <div class="filters"><input id="entry-search" type="search" placeholder="Search by account no., what happened, description, or person" /><select id="entry-status-filter"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option></select></div>
+            <div class="table-wrap"><table><thead><tr><th>Date</th><th>What happened</th><th>Person / place</th><th>Account</th><th>Amount</th><th>Status</th></tr></thead><tbody id="entry-list"></tbody></table></div>
+          </article>
+        </section>
+
+        <section id="cashbook" class="page cashbook-page">
+          <div class="page-intro split-intro">
+            <div><p class="eyebrow">CASH REGISTER</p><h2>Cash book</h2><p>Every Cash Book and Petty Cash receipt or payment in one place.</p></div>
+            <div class="report-actions"><label class="inline-field">Month <input type="month" id="cashbook-month" /></label><button class="primary-button small" data-goto="new-entry">＋ Cash entry</button></div>
+          </div>
+          <div class="cashbook-summary" id="cashbook-summary"></div>
+          <article class="panel table-panel">
+            <div class="cashbook-note">The running balance is based on approved entries. Pending entries are shown but do not change the official balance.</div>
+            <div class="table-wrap"><table><thead><tr><th>Date</th><th>Details</th><th>Cash source</th><th>Received</th><th>Paid</th><th>Running balance</th><th>Status</th></tr></thead><tbody id="cashbook-list"></tbody></table></div>
+          </article>
+        </section>
+
+        <section id="approvals" class="page admin-only-page">
+          <div class="page-intro split-intro"><div><p class="eyebrow">REVIEW QUEUE</p><h2>Approve entries</h2><p>Confirm each entry before it affects the official financial reports.</p></div><span id="approval-count" class="count-pill"></span></div>
+          <div id="approval-list" class="approval-list"></div>
+        </section>
+
+        <section id="reports" class="page admin-only-page">
+          <div class="page-intro split-intro"><div><p class="eyebrow">OFFICIAL REPORTS</p><h2>Financial reports</h2><p>Reports use approved entries only.</p></div><div class="report-actions"><label class="inline-field">Month <input type="month" id="report-month" /></label><button class="ghost-button" id="export-report">⇩ Export Excel</button><button class="primary-button small" id="print-report">Print</button></div></div>
+          <div class="report-tabs"><button class="report-tab active" data-report="pnl">Profit &amp; Loss</button><button class="report-tab" data-report="trial-balance">Trial Balance</button><button class="report-tab" data-report="capital">Capital &amp; WIP</button></div>
+          <article class="panel report-card" id="pnl-report"></article>
+          <article class="panel report-card hidden" id="trial-balance-report"></article>
+          <article class="panel report-card hidden" id="capital-report"></article>
+        </section>
+
+        <section id="accounts" class="page admin-only-page">
+          <div class="page-intro"><p class="eyebrow">PROTECTED SETUP</p><h2>Chart of accounts</h2><p>Only the Admin can change these reporting rules. Codes must be unique.</p></div>
+          <article class="panel table-panel"><div class="filters"><input id="account-search" type="search" placeholder="Find an account" /></div><div class="table-wrap"><table><thead><tr><th>Code</th><th>Account</th><th>Category</th><th>Normal side</th><th>Visibility</th></tr></thead><tbody id="account-list"></tbody></table></div></article>
+        </section>
+
+        <section id="customers" class="page admin-only-page">
+          <div class="page-intro split-intro">
+            <div><p class="eyebrow">CUSTOMER ROSTER</p><h2>Customers</h2><p>K = security service customers, C = cleaning service customers. Only the Admin can change status.</p></div>
+          </div>
+          <article class="panel table-panel">
+            <div class="filters">
+              <input id="customer-search" type="search" placeholder="Search by customer ID or name" />
+              <select id="customer-type-filter">
+                <option value="all">All types</option>
+                <option value="K">Security (K)</option>
+                <option value="C">Cleaning (C)</option>
+              </select>
+              <select id="customer-status-filter">
+                <option value="all">All statuses</option>
+                <option value="active">Active</option>
+                <option value="inactive">Deactive</option>
+              </select>
+            </div>
+            <p class="subtle" id="customer-count-note" style="margin: 0 0 10px;"></p>
+            <div class="table-wrap"><table><thead><tr><th>ID</th><th>Customer / site</th><th>Type</th><th>Status</th><th></th></tr></thead><tbody id="customer-list"></tbody></table></div>
+          </article>
+        </section>
+
+        <section id="audit" class="page admin-only-page">
+          <div class="page-intro"><p class="eyebrow">ACCOUNTABILITY</p><h2>Activity log</h2><p>Every save, approval, and change is recorded here.</p></div>
+          <article class="panel audit-panel" id="audit-list"></article>
+        </section>
+      </main>
+    </div>
+
+    <template id="empty-state-template"><div class="empty-state"><div>◌</div><strong>Nothing here yet</strong><span>Try changing the filter or add a new entry.</span></div></template>
+    <script src="accounts-data.js"></script>
+    <script src="customers-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
